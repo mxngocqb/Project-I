@@ -21,7 +21,7 @@ namespace Project_I
         public Form1()
         {
             InitializeComponent();
-            //serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceive);
+            serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceive);
             string[] BaudRate = { "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200" };
             comboBox2.Items.AddRange(BaudRate);
             //string[] StopBits = { "StopBits.One", "StopBits.Two", "StopBits.None"};
@@ -64,6 +64,28 @@ namespace Project_I
                 label5.ForeColor = Color.Green;
             }
         }
+
+        private void DataReceive(object obj, SerialDataReceivedEventArgs e)
+
+        {
+            InputData = serialPort1.ReadExisting();
+            if (InputData != String.Empty)
+            {
+                // textbox1 = InputData; // Ko dùng đc như thế này vì khác threads .
+                SetText(InputData); // Ủy quyền tại đây. Gọi delegate đã khai báo trước đó.
+            }
+        }
+        private void SetText(string text)
+        {
+            if (this.textBox1.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(SetText); // khởi tạo 1 delegate mới gọi đến SetText
+                this.Invoke(d, new object[] { text });
+            }
+            else this.textBox1.Text += text;
+
+        }
+
         // Conect với Serial Port I
         private void button2_Click(object sender, EventArgs e)
         {
@@ -72,7 +94,7 @@ namespace Project_I
 
                 serialPort1.PortName = comboBox1.Text;
                 serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
-                // Cái này hiện em đang chỉnh bằng Code vì em không biết chuyển từ text sang câu lệnh như thế nào :(
+                // Cái này StopBits hiện em đang chỉnh bằng Code vì em không biết chuyển từ text sang câu lệnh như thế nào :(
                 serialPort1.StopBits = StopBits.One;
                 serialPort1.Open();
             }
