@@ -10,6 +10,8 @@ using System.Windows.Forms;
 // Thu vien ket noi
 using System.IO;
 using System.IO.Ports;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Project_I
 {
@@ -24,8 +26,8 @@ namespace Project_I
             serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceive);
             string[] BaudRate = { "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200" };
             comboBox2.Items.AddRange(BaudRate);
-            //string[] StopBits = { "StopBits.One", "StopBits.Two", "StopBits.None"};
-            //comboBox3.DataSource = StopBits;
+            string[] StopBits = { "1", "2", "0"};
+            comboBox3.DataSource = StopBits;
 
         }
 
@@ -71,7 +73,7 @@ namespace Project_I
             InputData = serialPort1.ReadExisting();
             if (InputData != String.Empty)
             {
-                // textbox1 = InputData; // Ko dùng đc như thế này vì khác threads .
+                //textbox1.Txt = InputData; // Ko dùng đc như thế này vì khác threads .
                 SetText(InputData); // Ủy quyền tại đây. Gọi delegate đã khai báo trước đó.
             }
         }
@@ -94,8 +96,22 @@ namespace Project_I
 
                 serialPort1.PortName = comboBox1.Text;
                 serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
-                // Cái này StopBits hiện em đang chỉnh bằng Code vì em không biết chuyển từ text sang câu lệnh như thế nào :(
-                serialPort1.StopBits = StopBits.One;
+                switch (comboBox3.Text)
+                {
+                    case "1":
+                        serialPort1.StopBits = System.IO.Ports.StopBits.One;
+                        break;
+                    case "2":
+                        serialPort1.StopBits = System.IO.Ports.StopBits.Two;
+                        break;
+                    case "0":
+                        serialPort1.StopBits = System.IO.Ports.StopBits.None;
+                        break;
+                    default:
+                        // code block
+                        break;
+                }
+                serialPort1.StopBits = System.IO.Ports.StopBits.One;
                 serialPort1.Open();
             }
         }
@@ -103,6 +119,11 @@ namespace Project_I
         private void button1_Click(object sender, EventArgs e)
         {
             serialPort1.Close(); 
+        }
+
+        private void label6_Click_1(object sender, EventArgs e)
+        {
+            
         }
     }
 }
